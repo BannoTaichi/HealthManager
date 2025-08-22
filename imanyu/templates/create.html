@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2>新規登録</h2>
+<form method="post">
+  <label for="title">タイトル</label>
+  <input type="text" name="title" required>
+
+  <label for="body">内容</label>
+  <textarea type="text" name="body" required></textarea>
+
+  <button type="submit">投稿</button>
+</form>
+
+{% endblock %}
