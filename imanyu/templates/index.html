@@ -3,10 +3,16 @@
 {% block content %}
 
 <h1>Blog Application</h1>
+<a href="/create" role="button">新規作成</a>
+
+{% for post in posts %}
 <article>
-  <h2>記事1</h2>
-  <p>作成日時：2025/08/22</p>
-  <p>内容</p>
+  <h2>{{ post.title }}</h2>
+  <a href="/{{ post.id }}/update" role="button">編集</a>
+  <a href="/{{ post.id }}/delete" role="button">削除</a>
+  <p>作成日時：{{ post.created_at }}</p>
+  <p>{{ post.body }}</p>
 </article>
+{% endfor %}
 
 {% endblock %}

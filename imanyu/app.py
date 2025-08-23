@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import pytz
@@ -19,7 +19,41 @@ class Post(db.Model):
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    if request.method == "GET":
+        posts = Post.query.all()
+        return render_template("index.html", posts=posts)
+
+
+@app.route("/create", methods=["GET", "POST"])
+def create():
+    if request.method == "POST":
+        title = request.form["title"]
+        body = request.form["body"]
+
+        post = Post(title=title, body=body)
+        db.session.add(post)
+        db.session.commit()
+        return redirect("/")
+    return render_template("create.html")
+
+
+@app.route("/<int:post_id>/update", methods=["GET", "POST"])
+def update(post_id):
+    post = Post.query.get_or_404(post_id)
+    if request.method == "POST":
+        post.title = request.form["title"]
+        post.body = request.form["body"]
+        db.session.commit()
+        return redirect("/")
+    return render_template("update.html", post=post)
+
+
+@app.route("/<int:post_id>/delete", methods=["GET"])
+def delete(post_id):
+    post = Post.query.get_or_404(post_id)
+    db.session.delete(post)
+    db.session.commit()
+    return redirect("/")
 
 
 if __name__ == "__main__":

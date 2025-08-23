@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2>記事の更新</h2>
+<form method="post">
+  <label for="title">タイトル</label>
+  <input type="text" name="title" value="{{ post.title }}" required>
+
+  <br>
+  <br>
+
+  <label for="body">内容</label>
+  <textarea type="text" name="body" required>{{ post.body }}</textarea>
+
+  <br>
+  <br>
+
+  <button type="submit">更新</button>
+</form>
+
+{% endblock %}
