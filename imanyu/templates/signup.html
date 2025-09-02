@@ -2,22 +2,25 @@
 
 {% block content %}
 
-<h1>Create an Account</h1>
+<h1>アカウントの作成</h1>
 
 <form method="POST" action="/signup">
-    <label for="username">Username:</label>
+    <label for="username">ユーザー名:</label>
     <input type="text" id="username" name="username" required>
 
     <br>
     <br>
 
-    <label for="password">Password:</label>
+    <label for="password">パスワード:</label>
     <input type="password" id="password" name="password" required>
 
     <br>
     <br>
-    
-    <button type="submit">Sign Up</button>
+
+    <button type="submit">アカウント作成</button>
 </form>
+
+<br>
+<a href="login">アカウントをお持ちの場合、こちらからログインしてください。</a>
 
 {% endblock %}

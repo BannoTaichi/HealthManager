@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, session, url_for
 import os
 from datetime import datetime
 import pytz
@@ -29,9 +29,56 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), nullable=False, unique=True)
     password = db.Column(db.String(20), nullable=False)
+    age = db.Column(db.Integer, nullable=True)
+    weight = db.Column(db.Float, nullable=True)
+    height = db.Column(db.Float, nullable=True)
+    activity_level = db.Column(db.Float, nullable=True)
 
     def get_id(self):
         return super().get_id()
+
+
+class Meal(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    base_amount = db.Column(db.Float, nullable=True)
+    protein = db.Column(db.Float, nullable=True)
+    carbs = db.Column(db.Float, nullable=True)
+    fat = db.Column(db.Float, nullable=True)
+    vitamins = db.Column(db.Float, nullable=True)
+    minerals = db.Column(db.Float, nullable=True)
+
+
+class MealLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    meal_id = db.Column(db.Integer, db.ForeignKey("meal.id"), nullable=False)
+    amount = db.Column(db.Float, nullable=True)
+    date = db.Column(
+        db.DateTime, nullable=False, default=datetime.now(pytz.timezone("Asia/Tokyo"))
+    )
+    user = db.relationship("User", backref="meal_logs")
+    meal = db.relationship("Meal", backref="meal_logs")
+
+
+class Stretch(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    duration = db.Column(db.Float, nullable=False)
+    base_reps = db.Column(db.Integer, nullable=False)
+    calories = db.Column(db.Float, nullable=False)
+
+
+class StretchLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    stretch_id = db.Column(db.Integer, db.ForeignKey("stretch.id"), nullable=False)
+    reps = db.Column(db.Integer, nullable=False)
+    date = db.Column(
+        db.DateTime, nullable=False, default=datetime.now(pytz.timezone("Asia/Tokyo"))
+    )
+    user = db.relationship("User", backref="stretch_logs")
+    stretch = db.relationship("Stretch", backref="stretch_logs")
 
 
 @login_manager.user_loader
@@ -42,14 +89,6 @@ def load_user(user_id):
 @app.route("/")
 def home():
     return redirect("/signup")
-
-
-@app.route("/index")
-@login_required
-def index():
-    if request.method == "GET":
-        posts = Post.query.all()
-        return render_template("index.html", posts=posts)
 
 
 @app.route("/signup", methods=["GET", "POST"])
@@ -72,14 +111,26 @@ def login():
         password = request.form["password"]
         user = User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password, password):
+            session["user_id"] = user.id
             login_user(user)
             return redirect("/index")
     return render_template("login.html")
 
 
+@app.route("/index")
+@login_required
+def index():
+    user_id = session.get("user_id")
+    user = User.query.get(user_id)
+    if request.method == "GET":
+        posts = Post.query.all()
+        return render_template("index.html", posts=posts, user=user)
+
+
 @app.route("/logout")
 @login_required
 def logout():
+    session.pop("user_id", None)
     logout_user()
     return redirect("/login")
 

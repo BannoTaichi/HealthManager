@@ -1,1 +1,3 @@
 yolo/
+**/instance/
+**/__pycache__/
