@@ -16,26 +16,27 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
-class Post(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    body = db.Column(db.String(300), nullable=False)
-    created_at = db.Column(
-        db.DateTime, nullable=False, default=datetime.now(pytz.timezone("Asia/Tokyo"))
-    )
-
-
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), nullable=False, unique=True)
-    password = db.Column(db.String(20), nullable=False)
+    password = db.Column(db.String(200), nullable=False)
     age = db.Column(db.Integer, nullable=True)
     weight = db.Column(db.Float, nullable=True)
     height = db.Column(db.Float, nullable=True)
     activity_level = db.Column(db.Float, nullable=True)
 
     def get_id(self):
-        return super().get_id()
+        return str(self.id)
+
+
+class Post(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    title = db.Column(db.String(100), nullable=False)
+    body = db.Column(db.String(300), nullable=False)
+    created_at = db.Column(
+        db.DateTime, nullable=False, default=datetime.now(pytz.timezone("Asia/Tokyo"))
+    )
 
 
 class Meal(db.Model):
@@ -117,14 +118,13 @@ def login():
     return render_template("login.html")
 
 
-@app.route("/index")
+@app.route("/index", methods=["GET"])
 @login_required
 def index():
     user_id = session.get("user_id")
     user = User.query.get(user_id)
-    if request.method == "GET":
-        posts = Post.query.all()
-        return render_template("index.html", posts=posts, user=user)
+    posts = Post.query.filter_by(user_id=user_id).all()
+    return render_template("index.html", posts=posts, user=user)
 
 
 @app.route("/logout")
@@ -141,8 +141,9 @@ def create():
     if request.method == "POST":
         title = request.form["title"]
         body = request.form["body"]
+        user_id = session.get("user_id")
 
-        post = Post(title=title, body=body)
+        post = Post(title=title, body=body, user_id=user_id)
         db.session.add(post)
         db.session.commit()
         return redirect("/index")
