@@ -1,85 +1,17 @@
 from flask import Flask, render_template, request, redirect, session, url_for
 import os
-from datetime import datetime
-import pytz
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin, LoginManager, login_user, login_required, logout_user
+from flask_login import LoginManager, login_user, login_required, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from database import db, User, Post, Meal, MealLog, Stretch, StretchLog
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///blog.db"
 app.config["SECRET_KEY"] = os.urandom(24)
 
-db = SQLAlchemy(app)
+db.init_app(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-
-
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), nullable=False, unique=True)
-    password = db.Column(db.String(200), nullable=False)
-    age = db.Column(db.Integer, nullable=True)
-    weight = db.Column(db.Float, nullable=True)
-    height = db.Column(db.Float, nullable=True)
-    activity_level = db.Column(db.Float, nullable=True)
-
-    def get_id(self):
-        return str(self.id)
-
-
-class Post(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    title = db.Column(db.String(100), nullable=False)
-    body = db.Column(db.String(300), nullable=False)
-    created_at = db.Column(
-        db.DateTime, nullable=False, default=datetime.now(pytz.timezone("Asia/Tokyo"))
-    )
-
-
-class Meal(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    base_amount = db.Column(db.Float, nullable=True)
-    protein = db.Column(db.Float, nullable=True)
-    carbs = db.Column(db.Float, nullable=True)
-    fat = db.Column(db.Float, nullable=True)
-    vitamins = db.Column(db.Float, nullable=True)
-    minerals = db.Column(db.Float, nullable=True)
-
-
-class MealLog(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    meal_id = db.Column(db.Integer, db.ForeignKey("meal.id"), nullable=False)
-    amount = db.Column(db.Float, nullable=True)
-    date = db.Column(
-        db.DateTime, nullable=False, default=datetime.now(pytz.timezone("Asia/Tokyo"))
-    )
-    user = db.relationship("User", backref="meal_logs")
-    meal = db.relationship("Meal", backref="meal_logs")
-
-
-class Stretch(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    duration = db.Column(db.Float, nullable=False)
-    base_reps = db.Column(db.Integer, nullable=False)
-    calories = db.Column(db.Float, nullable=False)
-
-
-class StretchLog(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    stretch_id = db.Column(db.Integer, db.ForeignKey("stretch.id"), nullable=False)
-    reps = db.Column(db.Integer, nullable=False)
-    date = db.Column(
-        db.DateTime, nullable=False, default=datetime.now(pytz.timezone("Asia/Tokyo"))
-    )
-    user = db.relationship("User", backref="stretch_logs")
-    stretch = db.relationship("Stretch", backref="stretch_logs")
 
 
 @login_manager.user_loader
@@ -141,7 +73,6 @@ def profile():
         user.height = height
         user.weight = weight
         user.activity_level = activity_level
-        print(user.activity_level)
         db.session.commit()
         return redirect("/index")
     return render_template("profile.html", user=user)
