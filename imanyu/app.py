@@ -127,12 +127,24 @@ def index():
     return render_template("index.html", posts=posts, user=user)
 
 
-@app.route("/logout")
+@app.route("/profile", methods=["GET", "POST"])
 @login_required
-def logout():
-    session.pop("user_id", None)
-    logout_user()
-    return redirect("/login")
+def profile():
+    user_id = session.get("user_id")
+    user = User.query.get(user_id)
+    if request.method == "POST":
+        age = request.form["age"]
+        height = request.form["height"]
+        weight = request.form["weight"]
+        activity_level = request.form["activity_level"]
+        user.age = age
+        user.height = height
+        user.weight = weight
+        user.activity_level = activity_level
+        print(user.activity_level)
+        db.session.commit()
+        return redirect("/index")
+    return render_template("profile.html", user=user)
 
 
 @app.route("/create", methods=["GET", "POST"])
@@ -169,6 +181,14 @@ def delete(post_id):
     db.session.delete(post)
     db.session.commit()
     return redirect("/index")
+
+
+@app.route("/logout")
+@login_required
+def logout():
+    session.pop("user_id", None)
+    logout_user()
+    return redirect("/login")
 
 
 if __name__ == "__main__":
