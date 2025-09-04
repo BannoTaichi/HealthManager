@@ -1,6 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv("csv/FoodData_fromKaggle.csv", sep=",", low_memory=False)
+df = pd.read_csv("FoodData_fromKaggle.csv", sep=",", low_memory=False)
 
 df = df.drop(
     [

@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, session, url_for
 import os
 from flask_login import LoginManager, login_user, login_required, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from database import db, User, Post, Meal, MealLog, Stretch, StretchLog
+from database import db, User, Post, MealLog, StretchLog
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///blog.db"
