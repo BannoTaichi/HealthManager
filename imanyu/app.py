@@ -78,6 +78,18 @@ def profile():
     return render_template("profile.html", user=user)
 
 
+@app.route("/log", methods=["GET"])
+@login_required
+def log():
+    user_id = session.get("user_id")
+    user = User.query.get(user_id)
+    meal_logs = MealLog.query.filter_by(user_id=user_id).all()
+    stretch_logs = StretchLog.query.filter_by(user_id=user_id).all()
+    return render_template(
+        "log.html", user=user, meal_logs=meal_logs, stretch_logs=stretch_logs
+    )
+
+
 @app.route("/create", methods=["GET", "POST"])
 @login_required
 def create():

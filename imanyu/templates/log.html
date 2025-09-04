@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1>{{ user.username }}の食事・筋トレ記録</h1>
+<a href="/index" role="button">ホーム</a>
+<a href="/logout" role="button">ログアウト</a>
+<a href="/profile" role="button">プロフィール</a>
+<a href="/meal_log" role="button">食事記録追加</a>
+<a href="/stretch_log" role="button">筋トレ記録追加</a>
+
+
+{% for meal_log in meal_logs %}
+<article>
+  <h2>{{ meal_log.meal.name }}</h2>
+  <p>摂取量：{{ meal_log.amount }}g</p>
+  <p>日時：{{ meal_log.date }}</p>
+</article>
+{% endfor %}
+
+{% for stretch_log in stretch_logs %}
+<article>
+  <h2>{{ stretch_log.stretch.name }}</h2>
+  <p>回数：{{ stretch_log.reps }}回</p>
+  <p>日時：{{ stretch_log.date }}</p>
+</article>
+{% endfor %}
+
+{% endblock %}
