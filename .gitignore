@@ -2,3 +2,4 @@ yolo/
 **/instance/
 **/__pycache__/
 foodsecret_api.py
+**.tsv
