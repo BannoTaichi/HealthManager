@@ -1,4 +1,5 @@
 yolo/
 **/__pycache__/
-foodsecret_api.py
+**/foodsecret_api.py
 **.tsv
+test/
