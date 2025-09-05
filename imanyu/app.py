@@ -3,6 +3,7 @@ import os
 from flask_login import LoginManager, login_user, login_required, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import db, User, Post, MealLog, StretchLog
+import pandas as pd
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///blog.db"
@@ -78,16 +79,60 @@ def profile():
     return render_template("profile.html", user=user)
 
 
-@app.route("/log", methods=["GET"])
+@app.route("/display_log", methods=["GET"])
 @login_required
-def log():
+def display_log():
     user_id = session.get("user_id")
     user = User.query.get(user_id)
     meal_logs = MealLog.query.filter_by(user_id=user_id).all()
     stretch_logs = StretchLog.query.filter_by(user_id=user_id).all()
     return render_template(
-        "log.html", user=user, meal_logs=meal_logs, stretch_logs=stretch_logs
+        "display_log.html", user=user, meal_logs=meal_logs, stretch_logs=stretch_logs
     )
+
+
+@app.route("/add_meal", methods=["GET", "POST"])
+@login_required
+def add_meal():
+    user_id = session.get("user_id")
+    user = User.query.get(user_id)
+    if request.method == "POST":
+        meal = request.form["meal"]
+        amount = request.form["amount"]
+
+        food_df = pd.read_csv("csv/newFoodData_fromGovernment.csv", index_col=0)
+        food_item = food_df[food_df["name"] == meal]
+        print(food_item)
+        print(type(food_item["dish_amount[g]"].values[0]))
+        if not food_item.empty:
+            if not amount:
+                amount = int(food_item["dish_amount[g]"].values[0])
+                ratio = 1.0
+            if amount != food_item["dish_amount[g]"].values[0]:
+                ratio = int(amount) / float(food_item["dish_amount[g]"].values[0])
+            protein = float(food_item["protein[g]"].values[0]) * ratio
+            carbs = float(food_item["carbs[g]"].values[0]) * ratio
+            fat = float(food_item["fat[g]"].values[0]) * ratio
+            vitamins = float(food_item["vitamins[mg]"].values[0]) * ratio
+            minerals = float(food_item["minerals[mg]"].values[0]) * ratio
+        print(
+            f"meal: {meal}\namount: {amount}\nprotein: {protein}\ncarbs: {carbs}\nfat: {fat}\nvitamins: {vitamins}\nminerals: {minerals}"
+        )
+
+        meal_log = MealLog(
+            user_id=user_id,
+            meal=meal,
+            amount=int(amount),
+            protein=protein,
+            carbs=carbs,
+            fat=fat,
+            vitamins=vitamins,
+            minerals=minerals,
+        )
+        db.session.add(meal_log)
+        db.session.commit()
+        return redirect("/display_log")
+    return render_template("add_meal.html", user=user)
 
 
 @app.route("/create", methods=["GET", "POST"])

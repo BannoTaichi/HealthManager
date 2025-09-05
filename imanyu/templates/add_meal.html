@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1>{{ user.username }}の食事記録の追加</h1>
+<a href="/index" role="button">ホーム</a>
+<a href="/logout" role="button">ログアウト</a>
+<a href="/profile" role="button">プロフィール</a>
+<a href="/display_log" role="button">食事・筋トレ記録</a>
+<a href="/add_stretch" role="button">筋トレ記録追加</a>
+
+<form method="post" action="/add_meal">
+  <label for="meal">食事名:</label>
+  <input type="text" id="meal" name="meal" required><br>
+
+  <label for="amount">摂取量 (g):</label>
+  <input type="number" id="amount" name="amount" step="0.01"><br>
+
+  <button type="submit">追加</button>
+</form>
+{% endblock %}
