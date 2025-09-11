@@ -34,6 +34,7 @@ class MealLog(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     meal = db.Column(db.String(100), nullable=False)
     amount = db.Column(db.Integer, nullable=True)
+    energy = db.Column(db.Float, nullable=True)
     protein = db.Column(db.Float, nullable=True)
     carbs = db.Column(db.Float, nullable=True)
     fat = db.Column(db.Float, nullable=True)

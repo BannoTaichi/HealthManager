@@ -7,25 +7,26 @@ def calc_nutrient(meal, amount):
         nutrient_info = food_df.loc[meal]
 
         if not amount:
-            amount = nutrient_info["dish_amount[g]"]
+            amount = int(nutrient_info["dish_amount[g]"])
             ratio = 1
 
-        if amount != nutrient_info["dish_amount[g]"].values[0]:
-            ratio = int(amount) / float(nutrient_info["dish_amount[g]"].values[0])
+        if amount != int(nutrient_info["dish_amount[g]"]):
+            ratio = int(amount) / int(nutrient_info["dish_amount[g]"])
 
-        protein = round(float(nutrient_info["protein[g]"].values[0]) * ratio, 1)
-        carbs = round(float(nutrient_info["carbs[g]"].values[0]) * ratio, 1)
-        fat = round(float(nutrient_info["fat[g]"].values[0]) * ratio, 1)
-        vitamins = round(float(nutrient_info["vitamins[mg]"].values[0]) * ratio, 1)
-        minerals = round(float(nutrient_info["minerals[mg]"].values[0]) * ratio, 1)
+        energy = round(float(nutrient_info["energy[kcal]"]) * ratio, 1)
+        protein = round(float(nutrient_info["protein[g]"]) * ratio, 1)
+        carbs = round(float(nutrient_info["carbs[g]"]) * ratio, 1)
+        fat = round(float(nutrient_info["fat[g]"]) * ratio, 1)
+        vitamins = round(float(nutrient_info["vitamins[mg]"]) * ratio, 1)
+        minerals = round(float(nutrient_info["minerals[mg]"]) * ratio, 1)
 
         print(f"Meal: {meal}, Amount: {amount}g")
         print(
             f"Protein: {protein}g, Carbs: {carbs}g, Fat: {fat}g, Vitamins: {vitamins}mg, Minerals: {minerals}mg"
         )
-        return protein, carbs, fat, vitamins, minerals
+        return amount, energy, protein, carbs, fat, vitamins, minerals
     else:
-        return 0, 0, 0, 0, 0
+        return 0, 0, 0, 0, 0, 0, 0
 
 
 if __name__ == "__main__":

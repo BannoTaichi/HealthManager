@@ -100,11 +100,14 @@ def add_meal():
         meal = request.form["meal"]
         amount = request.form["amount"]
 
-        protein, carbs, fat, vitamins, minerals = calc_nutrient(meal, amount)
+        amount, energy, protein, carbs, fat, vitamins, minerals = calc_nutrient(
+            meal, amount
+        )
         meal_log = MealLog(
             user_id=user_id,
             meal=meal,
-            amount=int(amount),
+            amount=amount,
+            energy=energy,
             protein=protein,
             carbs=carbs,
             fat=fat,
