@@ -3,7 +3,7 @@ import os
 from flask_login import LoginManager, login_user, login_required, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import db, User, Post, MealLog, StretchLog
-from model import calc_nutrient
+from model import calc_nutrient, calc_total_nutrients, calc_burned_calories
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///blog.db"
@@ -47,7 +47,7 @@ def login():
         if user and check_password_hash(user.password, password):
             session["user_id"] = user.id
             login_user(user)
-            return redirect("/index")
+            return redirect("/display_log")
     return render_template("login.html")
 
 
@@ -69,10 +69,17 @@ def profile():
         age = request.form["age"]
         height = request.form["height"]
         weight = request.form["weight"]
+        sex = request.form["sex"]
+        purpose = request.form["purpose"]
+        stretch_level = request.form["stretch_level"]
         activity_level = request.form["activity_level"]
+
         user.age = age
         user.height = height
         user.weight = weight
+        user.sex = sex
+        user.purpose = purpose
+        user.stretch_level = stretch_level
         user.activity_level = activity_level
         db.session.commit()
         return redirect("/index")
@@ -86,8 +93,18 @@ def display_log():
     user = User.query.get(user_id)
     meal_logs = MealLog.query.filter_by(user_id=user_id).all()
     stretch_logs = StretchLog.query.filter_by(user_id=user_id).all()
+    daily_meal_logs = MealLog.query.filter(
+        MealLog.user_id == user_id,
+        MealLog.date >= (db.func.current_date() - db.text("1")),
+    ).all()
+    daily_nutrients = calc_total_nutrients(daily_meal_logs)
     return render_template(
-        "display_log.html", user=user, meal_logs=meal_logs, stretch_logs=stretch_logs
+        "display_log.html",
+        user=user,
+        meal_logs=meal_logs,
+        stretch_logs=stretch_logs,
+        daily_meal_logs=daily_meal_logs,
+        daily_nutrients=daily_nutrients,
     )
 
 
@@ -118,6 +135,33 @@ def add_meal():
         db.session.commit()
         return redirect("/display_log")
     return render_template("add_meal.html", user=user)
+
+
+@app.route("/add_stretch", methods=["GET", "POST"])
+@login_required
+def add_stretch():
+    user_id = session.get("user_id")
+    user = User.query.get(user_id)
+    if request.method == "POST":
+        stretch = request.form["stretch"]
+        sets = request.form["sets"]
+        reps = request.form["reps"]
+        setTime = request.form["setTime"]
+
+        energy = calc_burned_calories(sets, reps, setTime, stretch)
+
+        stretch_log = StretchLog(
+            user_id=user_id,
+            stretch=stretch,
+            sets=sets,
+            reps=reps,
+            setTime=setTime,
+            energy=energy,
+        )
+        db.session.add(stretch_log)
+        db.session.commit()
+        return redirect("/display_log")
+    return render_template("add_stretch.html", user=user)
 
 
 @app.route("/create", methods=["GET", "POST"])

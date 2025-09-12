@@ -13,6 +13,9 @@ class User(UserMixin, db.Model):
     age = db.Column(db.Integer, nullable=True)
     weight = db.Column(db.Float, nullable=True)
     height = db.Column(db.Float, nullable=True)
+    sex = db.Column(db.String(10), nullable=True)
+    purpose = db.Column(db.String(100), nullable=True)
+    stretch_level = db.Column(db.String(10), nullable=True)
     activity_level = db.Column(db.Float, nullable=True)
 
     def get_id(self):
@@ -50,9 +53,10 @@ class StretchLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     stretch = db.Column(db.String(100), nullable=False)
+    sets = db.Column(db.Integer, nullable=True)
     reps = db.Column(db.Integer, nullable=True)
-    minutes = db.Column(db.Integer, nullable=True)
-    calories = db.Column(db.Float, nullable=True)
+    setTime = db.Column(db.Integer, nullable=True)
+    energy = db.Column(db.Float, nullable=True)
     date = db.Column(
         db.DateTime, nullable=False, default=datetime.now(pytz.timezone("Asia/Tokyo"))
     )

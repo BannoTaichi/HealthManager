@@ -9,25 +9,38 @@
 <a href="/add_meal" role="button">食事記録追加</a>
 <a href="/add_stretch" role="button">筋トレ記録追加</a>
 
+<h2>今日の食事記録</h2>
+{% for daily_meal_log in daily_meal_logs %}
+<article>
+  <h3>{{ daily_meal_log.meal }}</h3>
+  <p>摂取量：{{ daily_meal_log.amount }}g</p>
+</article>
+{% endfor %}
 
+<h2>全ての食事記録</h2>
 {% for meal_log in meal_logs %}
 <article>
-  <h2>{{ meal_log.meal }}</h2>
+  <h3>{{ meal_log.meal }}</h3>
   <p>摂取量：{{ meal_log.amount }}g</p>
+  <p>カロリー：{{ meal_log.energy }}kcal</p>
   <p>タンパク質：{{ meal_log.protein }}g</p>
   <p>炭水化物：{{ meal_log.carbs }}g</p>
   <p>脂質：{{ meal_log.fat }}g</p>
   <p>ビタミン：{{ meal_log.vitamins }}mg</p>
   <p>ミネラル：{{ meal_log.minerals }}mg</p>
-  <p>日時：{{ meal_log.date }}</p>
+  <p>日時：{{ meal_log.date.strftime('%Y-%m-%d %H:%M') }}</p>
 </article>
 {% endfor %}
 
+<h2>全ての筋トレ記録</h2>
 {% for stretch_log in stretch_logs %}
 <article>
-  <h2>{{ stretch_log.stretch }}</h2>
-  <p>回数：{{ stretch_log.reps }}回</p>
-  <p>日時：{{ stretch_log.date }}</p>
+  <h3>{{ stretch_log.stretch }}</h3>
+  <p>セット数：{{ stretch_log.sets }}セット</p>
+  <p>レップ数：{{ stretch_log.reps }}回</p>
+  <p>セット時間：{{ stretch_log.setTime }}秒</p>
+  <p>消費カロリー：{{ stretch_log.energy }}kcal</p>
+  <p>日時：{{ stretch_log.date.strftime('%Y-%m-%d %H:%M') }}</p>
 </article>
 {% endfor %}
 

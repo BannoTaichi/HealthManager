@@ -9,21 +9,42 @@
 <form method="post" action="/profile">
     <label for="age">年齢:</label>
     <input type="text" id="age" name="age" value="{{ user.age }}" required>
-
-    <br>
-    <br>
+    <br><br>
 
     <label for="height">身長:</label>
     <input type="text" id="height" name="height" value="{{ user.height }}" required>
-
-    <br>
-    <br>
+    <br><br>
 
     <label for="weight">体重:</label>
     <input type="text" id="weight" name="weight" value="{{ user.weight }}" required>
+    <br><br>
 
-    <br>
-    <br>
+    <label for="sex">性別:</label>
+    <select id="sex" name="sex" required>
+        <option value="" disabled {% if not user.sex %} selected {% endif %}>選択してください</option>
+        <option value="男性" {% if user.sex == "男性" %} selected {% endif %}>男性</option>
+        <option value="女性" {% if user.sex == "女性" %} selected {% endif %}>女性</option>
+        <option value="その他" {% if user.sex == "その他" %} selected {% endif %}>その他</option>
+    </select>
+    <br><br>
+
+    <label for="purpose">目的:</label>
+    <select id="purpose" name="purpose" required>
+        <option value="" disabled {% if not user.purpose %} selected {% endif %}>選択してください</option>
+        <option value="減量" {% if user.purpose == "減量" %} selected {% endif %}>減量・ダイエット</option>
+        <option value="維持" {% if user.purpose == "維持" %} selected {% endif %}>維持・健康管理</option>
+        <option value="増量" {% if user.purpose == "増量" %} selected {% endif %}>増量・筋力アップ</option>
+    </select>
+    <br><br>
+
+    <label for="stretch_level">トレーニングの重さ:</label>
+    <select id="stretch_level" name="stretch_level" required>
+        <option value="" disabled {% if not user.stretch_level %} selected {% endif %}>選択してください</option>
+        <option value="初心者" {% if user.stretch_level == "初心者" %} selected {% endif %}>初心者</option>
+        <option value="中級者" {% if user.stretch_level == "中級者" %} selected {% endif %}>中級者</option>
+        <option value="上級者" {% if user.stretch_level == "上級者" %} selected {% endif %}>上級者</option>
+    </select>
+    <br><br>
 
     <label for="activity_level">身体活動レベル(PAL):</label>
     <select id="activity_level" name="activity_level" required>
@@ -33,9 +54,7 @@
         <option value="1.75" {% if user.activity_level|string == "1.75" %} selected {% endif %}>普通（PAL 1.75）　※座っての活動が中心だが、建物内での移動や立っての作業・接客等、通勤・買い物での歩行、家事、軽いスポーツのいずれを含む</option>
         <option value="2.0" {% if user.activity_level|string == "2.0" %} selected {% endif %}>高い（PAL 2.00）　※多くの移動を伴う、もしくは、立ち仕事への従事者。あるいはスポーツなど余暇における活発な運動習慣がある</option>
     </select>
-
-    <br>
-    <br>
+    <br><br>
 
     <button type="submit">設定</button>
 </form>
