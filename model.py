@@ -20,9 +20,9 @@ def calc_nutrient(meal, amount):
         vitamins = round(float(nutrient_info["vitamins[mg]"]) * ratio, 1)
         minerals = round(float(nutrient_info["minerals[mg]"]) * ratio, 1)
 
-        print(f"Meal: {meal}, Amount: {amount}g")
+        print(f"<<<Meal: {meal}, Amount: {amount}g>>>")
         print(
-            f"Protein: {protein}g, Carbs: {carbs}g, Fat: {fat}g, Vitamins: {vitamins}mg, Minerals: {minerals}mg"
+            f"Protein: {protein}g, Carbs: {carbs}g, Fat: {fat}g, Vitamins: {vitamins}mg, Minerals: {minerals}mg\n"
         )
         return amount, energy, protein, carbs, fat, vitamins, minerals
     else:
@@ -47,39 +47,53 @@ def calc_total_nutrients(meal_logs):
         total_nutrients["vitamins"] += log.vitamins
         total_nutrients["minerals"] += log.minerals
 
+    print("<<<Total nutrients>>>")
     print(
-        f"""Total energy: {round(total_nutrients['energy'] ,1)} kcal
-            Total protein: {round(total_nutrients['protein'] ,1)} g
-            Total carbs: {round(total_nutrients['carbs'] ,1)} g
-            Total fat: {round(total_nutrients['fat'] ,1)} g
-            Total vitamins: {round(total_nutrients['vitamins'] ,1)} mg
-            Total minerals: {round(total_nutrients['minerals'] ,1)} mg"""
+        f"energy: {round(total_nutrients['energy'] ,1)}kcal, protein: {round(total_nutrients['protein'] ,1)}g, carbs: {round(total_nutrients['carbs'] ,1)}g, fat: {round(total_nutrients['fat'] ,1)}g, vitamins: {round(total_nutrients['vitamins'] ,1)}mg, minerals: {round(total_nutrients['minerals'] ,1)}mg\n"
     )
     return total_nutrients
 
 
-def calc_burned_calories(sets, reps, setTime, stretch):
+def calc_burned_calories(sets, reps, setTime, stretch, weight):
     df = pd.read_csv("csv/TrainingData_60kg.csv", index_col=0)
     if stretch in df.index:
+        weight_ratio = weight / 60
         try:
-            sets_ratio = int(sets) / int(df.loc[stretch, "sets[count]"])
+            sets_ratio = round(int(sets) / int(df.loc[stretch, "sets[count]"]), 1)
         except:
             sets_ratio = 1
         try:
-            reps_ratio = int(reps) / int(df.loc[stretch, "reps[count]"])
+            reps_ratio = round(int(reps) / int(df.loc[stretch, "reps[count]"]), 1)
         except:
             reps_ratio = 1
         try:
-            setTime_ratio = int(setTime) / int(df.loc[stretch, "setTime[sec]"])
+            setTime_ratio = round(
+                int(setTime) / int(df.loc[stretch, "setTime[sec]"]), 1
+            )
         except:
             setTime_ratio = 1
 
-        energy = round(
-            float(df.loc[stretch, "energy[kcal]"])
-            * sets_ratio
-            * reps_ratio
-            * setTime_ratio,
-            1,
+        if type(reps_ratio) == float and type(setTime_ratio) == float:
+            energy = round(
+                float(df.loc[stretch, "energy[kcal]"])
+                * sets_ratio
+                * min(reps_ratio, setTime_ratio)
+                * weight_ratio,
+                1,
+            )
+        else:
+            energy = round(
+                float(df.loc[stretch, "energy[kcal]"])
+                * sets_ratio
+                * reps_ratio
+                * setTime_ratio
+                * weight_ratio,
+                1,
+            )
+
+        print(f"<<<Burned calories for {stretch}: {energy} kcal>>>")
+        print(
+            f"sets ratio: {sets_ratio}, reps ratio: {reps_ratio}, setTime ratio: {setTime_ratio}, weight ratio: {weight_ratio}, base energy: {df.loc[stretch, 'energy[kcal]']}kcal\n"
         )
     else:
         energy = 0

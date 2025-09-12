@@ -17,7 +17,7 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 
 @app.route("/")
@@ -43,7 +43,7 @@ def login():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-        user = User.query.filter_by(username=username).first()
+        user = db.session.query(User).filter_by(username=username).first()
         if user and check_password_hash(user.password, password):
             session["user_id"] = user.id
             login_user(user)
@@ -55,8 +55,8 @@ def login():
 @login_required
 def index():
     user_id = session.get("user_id")
-    user = User.query.get(user_id)
-    posts = Post.query.filter_by(user_id=user_id).all()
+    user = db.session.get(User, user_id)
+    posts = db.session.query(Post).filter_by(user_id=user_id).all()
     return render_template("index.html", posts=posts, user=user)
 
 
@@ -64,7 +64,7 @@ def index():
 @login_required
 def profile():
     user_id = session.get("user_id")
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if request.method == "POST":
         age = request.form["age"]
         height = request.form["height"]
@@ -90,13 +90,17 @@ def profile():
 @login_required
 def display_log():
     user_id = session.get("user_id")
-    user = User.query.get(user_id)
-    meal_logs = MealLog.query.filter_by(user_id=user_id).all()
-    stretch_logs = StretchLog.query.filter_by(user_id=user_id).all()
-    daily_meal_logs = MealLog.query.filter(
-        MealLog.user_id == user_id,
-        MealLog.date >= (db.func.current_date() - db.text("1")),
-    ).all()
+    user = db.session.get(User, user_id)
+    meal_logs = db.session.query(MealLog).filter_by(user_id=user_id).all()
+    stretch_logs = db.session.query(StretchLog).filter_by(user_id=user_id).all()
+    daily_meal_logs = (
+        db.session.query(MealLog)
+        .filter(
+            MealLog.user_id == user_id,
+            MealLog.date >= (db.func.current_date() - db.text("1")),
+        )
+        .all()
+    )
     daily_nutrients = calc_total_nutrients(daily_meal_logs)
     return render_template(
         "display_log.html",
@@ -112,7 +116,7 @@ def display_log():
 @login_required
 def add_meal():
     user_id = session.get("user_id")
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if request.method == "POST":
         meal = request.form["meal"]
         amount = request.form["amount"]
@@ -141,14 +145,15 @@ def add_meal():
 @login_required
 def add_stretch():
     user_id = session.get("user_id")
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if request.method == "POST":
         stretch = request.form["stretch"]
         sets = request.form["sets"]
         reps = request.form["reps"]
         setTime = request.form["setTime"]
+        weight = user.weight if user.weight else 60
 
-        energy = calc_burned_calories(sets, reps, setTime, stretch)
+        energy = calc_burned_calories(sets, reps, setTime, stretch, weight)
 
         stretch_log = StretchLog(
             user_id=user_id,
