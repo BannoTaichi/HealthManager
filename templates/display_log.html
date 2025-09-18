@@ -8,21 +8,33 @@
 <a href="/add_meal" role="button">食事記録追加</a>
 <a href="/add_stretch" role="button">筋トレ記録追加</a>
 
-<h2>24時間以内の栄養素合計（棒グラフ）</h2>
-<canvas id="nutrientChart" width="600" height="300"></canvas>
-<script>
-  window.nutrientLabels = ['タンパク質 [g]', '炭水化物 [g]', '脂質 [g]', 'ビタミン [g]', 'ミネラル [g]'];
-  window.nutrientValues = {{ [
-    recent_nutrients.protein|default(0)|float,
-    recent_nutrients.carbs|default(0)|float,
-    recent_nutrients.fat|default(0)|float,
-    (recent_nutrients.vitamins|default(0)|float / 1000),
-    (recent_nutrients.minerals|default(0)|float / 1000)
-    ]|tojson }};
-</script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="/static/js/nutrients_graph.js"></script>
-
+<div style="display: flex; gap: 40px; align-items: flex-start;">
+  <div>
+    <h2>24時間以内の栄養素合計（棒グラフ）</h2>
+    <canvas id="nutrientChart" width="600" height="300"></canvas>
+    <script>
+      window.nutrientLabels = ['タンパク質 [g]', '炭水化物 [g]', '脂質 [g]', 'ビタミン [g]', 'ミネラル [g]'];
+      window.nutrientValues = {{ [
+        recent_nutrients.protein|default(0)|float,
+        recent_nutrients.carbs|default(0)|float,
+        recent_nutrients.fat|default(0)|float,
+        (recent_nutrients.vitamins|default(0)|float / 1000),
+        (recent_nutrients.minerals|default(0)|float / 1000)
+      ]|tojson }};
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/js/nutrients_graph.js"></script>
+  </div>
+  <div>
+    <h2>24時間以内の筋トレメニュー別回数（棒グラフ）</h2>
+    <canvas id="stretchChart" width="600" height="300"></canvas>
+    <script>
+      window.stretchLabels = {{ stretch_menu_counts.keys()|list|tojson }};
+      window.stretchValues = {{ stretch_menu_counts.values()|list|tojson }};
+    </script>
+    <script src="/static/js/stretch_graph.js"></script>
+  </div>
+</div>
 
 <h2>今日の食事記録</h2>
 {% for recent_meal_log in recent_meal_logs %}

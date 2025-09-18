@@ -5,7 +5,6 @@ window.addEventListener('DOMContentLoaded', function () {
   const nutrientData = {
     labels: window.nutrientLabels,
     datasets: [{
-      label: '24時間合計',
       data: window.nutrientValues,
       backgroundColor: [
         'rgba(255, 99, 132, 0.5)',
@@ -28,6 +27,9 @@ window.addEventListener('DOMContentLoaded', function () {
     type: 'bar',
     data: nutrientData,
     options: {
+      plugins: {
+        legend: { display: false }
+      },
       scales: {
         y: {
           beginAtZero: true,
