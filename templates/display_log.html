@@ -1,5 +1,4 @@
 {% extends "layout.html" %}
-
 {% block content %}
 
 <h1>{{ user.username }}の食事・筋トレ記録</h1>
@@ -19,7 +18,7 @@
     recent_nutrients.fat|default(0)|float,
     (recent_nutrients.vitamins|default(0)|float / 1000),
     (recent_nutrients.minerals|default(0)|float / 1000)
-  ]|tojson }};
+    ]|tojson }};
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="/static/js/nutrients_graph.js"></script>
@@ -30,7 +29,21 @@
 <article>
   <h3>{{ recent_meal_log.meal }}</h3>
   <a href="/{{ recent_meal_log.id }}/delete_meal" role="button">削除</a>
-  <p>摂取量：{{ recent_meal_log.amount }}g</p>
+  <br>
+  <span>摂取量：{{ recent_meal_log.amount }}g</span>
+  <span>カロリー：{{ recent_meal_log.energy }}kcal</span>
+  <p>記録時間：{{ recent_meal_log.date.strftime('%Y-%m-%d %H:%M') }}</p>
+</article>
+{% endfor %}
+
+<h2>今日の筋トレ記録</h2>
+{% for recent_stretch_log in recent_stretch_logs %}
+<article>
+  <h3>{{ recent_stretch_log.stretch }}</h3>
+  <a href="/{{ recent_stretch_log.id }}/delete_stretch" role="button">削除</a>
+  <br>
+  <span>消費カロリー：{{ recent_stretch_log.energy }}kcal</span>
+  <p>記録時間：{{ recent_stretch_log.date.strftime('%Y-%m-%d %H:%M') }}</p>
 </article>
 {% endfor %}
 

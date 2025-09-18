@@ -11,7 +11,11 @@
 
 <form method="post" action="/add_meal">
   <label for="meal">食事名:</label>
-  <input type="text" id="meal" name="meal" required>
+  <select id="meal" name="meal">
+    {% for meal in meals %}
+    <option value="{{ meal.name }}">{{ meal.name }}</option>
+    {% endfor %}
+  </select>
   <br>
 
   <label for="amount">摂取量 (g):</label>

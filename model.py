@@ -123,9 +123,14 @@ def get_recent_logs(Log, hours, user_id):
     )
     print(f"<<<{hours}-hour {Log.__name__} from get_recent_logs()>>>")
     for log in recent_logs:
-        print(
-            f"Date: {log.date.strftime('%Y-%m-%d %H:%M')}, {Log.__name__[:-3]}: {getattr(log, Log.__name__.lower()[:-3])}, Amount: {getattr(log, 'amount', 'N/A')}g, Calories: {getattr(log, 'energy', 'N/A')}kcal"
-        )
+        if Log == MealLog:
+            print(
+                f"Date: {log.date.strftime('%Y-%m-%d %H:%M')}, {Log.__name__[:-3]}: {getattr(log, Log.__name__.lower()[:-3])}, Amount: {getattr(log, 'amount', 'N/A')}g, Calories: {getattr(log, 'energy', 'N/A')}kcal"
+            )
+        elif Log == StretchLog:
+            print(
+                f"Date: {log.date.strftime('%Y-%m-%d %H:%M')}, {Log.__name__[:-3]}: {getattr(log, Log.__name__.lower()[:-3])}, Sets: {getattr(log, 'sets', 'N/A')}, Reps: {getattr(log, 'reps', 'N/A')}, Time: {getattr(log, 'setTime', 'N/A')}s, Calories: {getattr(log, 'energy', 'N/A')}kcal"
+            )
     return recent_logs
 
 

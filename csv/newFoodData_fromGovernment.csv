@@ -1,4 +1,4 @@
-,dish_amount[g],energy[kcal],protein[g],carbs[g],fat[g],vitamins[mg],minerals[mg]
+name,dish_amount[g],energy[kcal],protein[g],carbs[g],fat[g],vitamins[mg],minerals[mg]
 ビーフカレー,250,297.5,6.0,20.2,22.5,9.4,2085.6
 ぎょうざ,120,250.8,8.3,26.8,13.6,14.0,877.8
 えびグラタン,200,256.0,11.0,24.2,13.8,12.1,1490.3

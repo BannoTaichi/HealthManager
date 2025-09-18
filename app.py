@@ -11,6 +11,7 @@ from model import (
 )
 from datetime import datetime, timedelta
 import collections, pytz
+import pandas as pd
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///blog.db"
@@ -105,6 +106,17 @@ def display_log():
     recent_meal_logs = get_recent_logs(MealLog, hours=24, user_id=user_id)
     recent_nutrients = calc_total_nutrients(recent_meal_logs)
 
+    recent_stretch_logs = get_recent_logs(StretchLog, hours=24, user_id=user_id)
+    recent_burned_calories = sum(log.energy for log in recent_stretch_logs)
+
+    # 24時間以内の筋トレ記録をメニューごとに回数合計で集計
+    stretch_menu_counts = collections.defaultdict(int)
+    for log in recent_stretch_logs:
+        stretch_menu_counts[log.stretch] += (
+            log.sets * log.reps if log.sets or log.reps else 0
+        )
+    print(f"--- Stretch menu counts in last 24 hours: {dict(stretch_menu_counts)} ---")
+
     return render_template(
         "display_log.html",
         user=user,
@@ -112,6 +124,9 @@ def display_log():
         stretch_logs=stretch_logs,
         recent_meal_logs=recent_meal_logs,
         recent_nutrients=recent_nutrients,
+        recent_stretch_logs=recent_stretch_logs,
+        recent_burned_calories=recent_burned_calories,
+        stretch_menu_counts=stretch_menu_counts,
     )
 
 
@@ -142,7 +157,8 @@ def add_meal():
         db.session.commit()
         print("--- MEAL LOG ADDED ---")
         return redirect("/display_log")
-    return render_template("add_meal.html", user=user)
+    meals = pd.read_csv("csv/newFoodData_fromGovernment.csv").to_dict(orient="records")
+    return render_template("add_meal.html", user=user, meals=meals)
 
 
 @app.route("/<int:meal_log_id>/delete_meal", methods=["GET"])
@@ -181,7 +197,8 @@ def add_stretch():
         db.session.commit()
         print("--- STRETCH LOG ADDED ---")
         return redirect("/display_log")
-    return render_template("add_stretch.html", user=user)
+    stretches = pd.read_csv("csv/TrainingData_60kg.csv").to_dict(orient="records")
+    return render_template("add_stretch.html", user=user, stretches=stretches)
 
 
 @app.route("/<int:stretch_log_id>/delete_stretch", methods=["GET"])

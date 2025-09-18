@@ -11,7 +11,11 @@
 
 <form method="post" action="/add_stretch">
   <label for="stretch">トレーニング内容:</label>
-  <input type="text" id="stretch" name="stretch" required>
+  <select id="stretch" name="stretch">
+    {% for stretch in stretches %}
+    <option value="{{ stretch.name }}">{{ stretch.name }}</option>
+    {% endfor %}
+  </select>
   <br>
 
   <label for="sets">セット数:</label>
