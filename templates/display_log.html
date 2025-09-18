@@ -9,12 +9,28 @@
 <a href="/add_meal" role="button">食事記録追加</a>
 <a href="/add_stretch" role="button">筋トレ記録追加</a>
 
+<h2>24時間以内の栄養素合計（棒グラフ）</h2>
+<canvas id="nutrientChart" width="600" height="300"></canvas>
+<script>
+  window.nutrientLabels = ['タンパク質 [g]', '炭水化物 [g]', '脂質 [g]', 'ビタミン [g]', 'ミネラル [g]'];
+  window.nutrientValues = {{ [
+    recent_nutrients.protein|default(0)|float,
+    recent_nutrients.carbs|default(0)|float,
+    recent_nutrients.fat|default(0)|float,
+    (recent_nutrients.vitamins|default(0)|float / 1000),
+    (recent_nutrients.minerals|default(0)|float / 1000)
+  ]|tojson }};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/static/js/nutrients_graph.js"></script>
+
+
 <h2>今日の食事記録</h2>
-{% for daily_meal_log in daily_meal_logs %}
+{% for recent_meal_log in recent_meal_logs %}
 <article>
-  <h3>{{ daily_meal_log.meal }}</h3>
-  <a href="/{{ daily_meal_log.id }}/delete_meal" role="button">削除</a>
-  <p>摂取量：{{ daily_meal_log.amount }}g</p>
+  <h3>{{ recent_meal_log.meal }}</h3>
+  <a href="/{{ recent_meal_log.id }}/delete_meal" role="button">削除</a>
+  <p>摂取量：{{ recent_meal_log.amount }}g</p>
 </article>
 {% endfor %}
 

@@ -103,15 +103,15 @@ def display_log():
 
     # 24時間以内の食事記録を取得
     recent_meal_logs = get_recent_logs(MealLog, hours=24, user_id=user_id)
-    daily_nutrients = calc_total_nutrients(recent_meal_logs)
+    recent_nutrients = calc_total_nutrients(recent_meal_logs)
 
     return render_template(
         "display_log.html",
         user=user,
         meal_logs=meal_logs,
         stretch_logs=stretch_logs,
-        daily_meal_logs=recent_meal_logs,
-        daily_nutrients=daily_nutrients,
+        recent_meal_logs=recent_meal_logs,
+        recent_nutrients=recent_nutrients,
     )
 
 
