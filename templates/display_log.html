@@ -13,6 +13,7 @@
 {% for daily_meal_log in daily_meal_logs %}
 <article>
   <h3>{{ daily_meal_log.meal }}</h3>
+  <a href="/{{ daily_meal_log.id }}/delete_meal" role="button">削除</a>
   <p>摂取量：{{ daily_meal_log.amount }}g</p>
 </article>
 {% endfor %}
@@ -21,13 +22,15 @@
 {% for meal_log in meal_logs %}
 <article>
   <h3>{{ meal_log.meal }}</h3>
+  <a href="/{{ meal_log.id }}/delete_meal" role="button">削除</a>
   <p>摂取量：{{ meal_log.amount }}g</p>
-  <p>カロリー：{{ meal_log.energy }}kcal</p>
-  <p>タンパク質：{{ meal_log.protein }}g</p>
-  <p>炭水化物：{{ meal_log.carbs }}g</p>
-  <p>脂質：{{ meal_log.fat }}g</p>
-  <p>ビタミン：{{ meal_log.vitamins }}mg</p>
-  <p>ミネラル：{{ meal_log.minerals }}mg</p>
+  <span>カロリー：{{ meal_log.energy }}kcal</span>
+  <br>
+  <span>タンパク質：{{ meal_log.protein }}g</span>
+  <span>炭水化物：{{ meal_log.carbs }}g</span>
+  <span>脂質：{{ meal_log.fat }}g</span>
+  <span>ビタミン：{{ meal_log.vitamins }}mg</span>
+  <span>ミネラル：{{ meal_log.minerals }}mg</span>
   <p>日時：{{ meal_log.date.strftime('%Y-%m-%d %H:%M') }}</p>
 </article>
 {% endfor %}
@@ -36,10 +39,12 @@
 {% for stretch_log in stretch_logs %}
 <article>
   <h3>{{ stretch_log.stretch }}</h3>
-  <p>セット数：{{ stretch_log.sets }}セット</p>
-  <p>レップ数：{{ stretch_log.reps }}回</p>
-  <p>セット時間：{{ stretch_log.setTime }}秒</p>
-  <p>消費カロリー：{{ stretch_log.energy }}kcal</p>
+  <a href="/{{ stretch_log.id }}/delete_stretch" role="button">削除</a>
+  <br>
+  <span>セット数：{{ stretch_log.sets }}セット</span>
+  <span>レップ数：{{ stretch_log.reps }}回</span>
+  <span>セット時間：{{ stretch_log.setTime }}秒</span>
+  <span>消費カロリー：{{ stretch_log.energy }}kcal</span>
   <p>日時：{{ stretch_log.date.strftime('%Y-%m-%d %H:%M') }}</p>
 </article>
 {% endfor %}

@@ -3,7 +3,14 @@ import os
 from flask_login import LoginManager, login_user, login_required, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import db, User, Post, MealLog, StretchLog
-from model import calc_nutrient, calc_total_nutrients, calc_burned_calories
+from model import (
+    calc_nutrient_from_table,
+    calc_total_nutrients,
+    calc_burned_calories,
+    get_recent_logs,
+)
+from datetime import datetime, timedelta
+import collections, pytz
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///blog.db"
@@ -93,21 +100,17 @@ def display_log():
     user = db.session.get(User, user_id)
     meal_logs = db.session.query(MealLog).filter_by(user_id=user_id).all()
     stretch_logs = db.session.query(StretchLog).filter_by(user_id=user_id).all()
-    daily_meal_logs = (
-        db.session.query(MealLog)
-        .filter(
-            MealLog.user_id == user_id,
-            MealLog.date >= (db.func.current_date() - db.text("1")),
-        )
-        .all()
-    )
-    daily_nutrients = calc_total_nutrients(daily_meal_logs)
+
+    # 24時間以内の食事記録を取得
+    recent_meal_logs = get_recent_logs(MealLog, hours=24, user_id=user_id)
+    daily_nutrients = calc_total_nutrients(recent_meal_logs)
+
     return render_template(
         "display_log.html",
         user=user,
         meal_logs=meal_logs,
         stretch_logs=stretch_logs,
-        daily_meal_logs=daily_meal_logs,
+        daily_meal_logs=recent_meal_logs,
         daily_nutrients=daily_nutrients,
     )
 
@@ -121,8 +124,8 @@ def add_meal():
         meal = request.form["meal"]
         amount = request.form["amount"]
 
-        amount, energy, protein, carbs, fat, vitamins, minerals = calc_nutrient(
-            meal, amount
+        amount, energy, protein, carbs, fat, vitamins, minerals = (
+            calc_nutrient_from_table(meal, amount)
         )
         meal_log = MealLog(
             user_id=user_id,
@@ -137,8 +140,19 @@ def add_meal():
         )
         db.session.add(meal_log)
         db.session.commit()
+        print("--- MEAL LOG ADDED ---")
         return redirect("/display_log")
     return render_template("add_meal.html", user=user)
+
+
+@app.route("/<int:meal_log_id>/delete_meal", methods=["GET"])
+@login_required
+def delete_meal(meal_log_id):
+    meal_log = MealLog.query.get_or_404(meal_log_id)
+    db.session.delete(meal_log)
+    db.session.commit()
+    print("--- MEAL LOG DELETED ---")
+    return redirect("/display_log")
 
 
 @app.route("/add_stretch", methods=["GET", "POST"])
@@ -153,7 +167,7 @@ def add_stretch():
         setTime = request.form["setTime"]
         weight = user.weight if user.weight else 60
 
-        energy = calc_burned_calories(sets, reps, setTime, stretch, weight)
+        energy = calc_burned_calories(stretch, sets, reps, setTime, weight)
 
         stretch_log = StretchLog(
             user_id=user_id,
@@ -165,8 +179,19 @@ def add_stretch():
         )
         db.session.add(stretch_log)
         db.session.commit()
+        print("--- STRETCH LOG ADDED ---")
         return redirect("/display_log")
     return render_template("add_stretch.html", user=user)
+
+
+@app.route("/<int:stretch_log_id>/delete_stretch", methods=["GET"])
+@login_required
+def delete_stretch(stretch_log_id):
+    stretch_log = StretchLog.query.get_or_404(stretch_log_id)
+    db.session.delete(stretch_log)
+    db.session.commit()
+    print("--- STRETCH LOG DELETED ---")
+    return redirect("/display_log")
 
 
 @app.route("/create", methods=["GET", "POST"])
